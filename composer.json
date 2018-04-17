@@ -1,5 +1,5 @@
 {
-  "name": "ether/customers-also-bought",
+  "name": "ether/purchase-patterns",
   "description": "Easily keep track of products customers bought together - for Craft Commerce 2",
   "version": "1.0.0",
   "type": "craft-plugin",
@@ -17,12 +17,12 @@
     "email": "tam@ethercreative.co.uk"
   },
   "extra": {
-    "handle": "cab",
-    "name": "Customers also bought",
+    "handle": "purchasePatterns",
+    "name": "Purchase Patterns",
     "developer": "Ether Creative",
     "developerUrl": "https://ethercreative.co.uk",
 
-    "class": "ether\\cab\\CustomersAlsoBought",
+    "class": "ether\\purchasePatterns\\PurchasePatterns",
     "schemaVersion": "1.0.0"
   }
 }
