@@ -61,14 +61,15 @@ class Service extends Component
 
 					\Craft::$app->db->createCommand()->upsert(
 						'{{%purchase_patterns}}', [
-							'productA' => $idA,
-							'productB' => $idB,
-							'purchaseCount' => 0,
+							'product_a' => $idA,
+							'product_b' => $idB,
+							'purchase_count' => 0,
 						], [
-							'purchaseCount' => new Expression('purchaseCount + 1')
+							// FIXME:                       column `purchase_count` is ambiguous
+							'purchase_count' => new Expression('purchase_count + 1')
 						],
 						[], false
-					);
+					)->execute();
 				}
 			}
 		} catch (\Exception $e) {
@@ -94,9 +95,9 @@ class Service extends Component
 		$craft = \Craft::$app;
 
 		$query = <<<SQL
-SELECT productA, productB
+SELECT product_a, product_b
 FROM {{%purchase_patterns}}
-WHERE (productA = $id OR productB = $id)
+WHERE (product_a = $id OR product_b = $id)
 ORDER BY purchase_count
 LIMIT $limit
 SQL;
@@ -106,9 +107,9 @@ SQL;
 
 		foreach ($results as $result)
 			$productIds[] =
-				$result['productA'] === $id
-					? $result['productA']
-					: $result['productB'];
+				$result['product_a'] === $id
+					? $result['product_a']
+					: $result['product_b'];
 
 		return Product::find()->id($productIds)->limit($limit);
 	}

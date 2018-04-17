@@ -43,12 +43,10 @@ class Install extends Migration
 		// Table
 
 		$this->createTable('{{%purchase_patterns}}', [
-			[
-				'id'            => $this->primaryKey(),
-				'productA'      => $this->integer()->notNull(),
-				'productB'      => $this->integer()->notNull(),
-				'purchaseCount' => $this->integer()->notNull(),
-			]
+			'id'             => $this->primaryKey(),
+			'product_a'      => $this->integer()->notNull(),
+			'product_b'      => $this->integer()->notNull(),
+			'purchase_count' => $this->integer()->notNull(),
 		]);
 
 		// Indexes
@@ -56,7 +54,7 @@ class Install extends Migration
 		$this->createIndex(
 			null,
 			'{{%purchase_patterns}}',
-			['productA', 'productB'],
+			['product_a', 'product_b'],
 			true
 		);
 	}
