@@ -1,6 +1,6 @@
 <?php
 /**
- * Customers Also Bought
+ * Purchase Patterns
  *
  * @link      https://ethercreative.co.uk
  * @copyright Copyright (c) Ether Creative
@@ -10,11 +10,12 @@ namespace ether\purchasePatterns;
 
 use craft\base\Plugin;
 use craft\commerce\elements\Order;
+use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 
 
 /**
- * Class CustomersAlsoBought
+ * Class PurchasePatterns
  *
  * @author  Ether Creative
  * @package ether\purchasePatterns
@@ -45,6 +46,12 @@ class PurchasePatterns extends Plugin
 			Order::EVENT_AFTER_COMPLETE_ORDER,
 			[$this, 'onOrderComplete']
 		);
+
+		Event::on(
+			CraftVariable::class,
+			CraftVariable::EVENT_INIT,
+			[$this, 'onRegisterVariable']
+		);
 	}
 
 	// Services
@@ -56,7 +63,9 @@ class PurchasePatterns extends Plugin
 	 */
 	public function getService (): Service
 	{
-		return $this->get('service');
+		/** @var Service $service */
+		$service = $this->get('service');
+		return $service;
 	}
 
 	// Events
@@ -72,6 +81,18 @@ class PurchasePatterns extends Plugin
 		/** @var Order $order */
 		$order = $event->sender;
 		$this->getService()->tallyProducts($order);
+	}
+
+	/**
+	 * @param Event $event
+	 *
+	 * @throws \yii\base\InvalidConfigException
+	 */
+	public function onRegisterVariable (Event $event)
+	{
+		/** @var CraftVariable $variable */
+		$variable = $event->sender;
+		$variable->set('purchasePatterns', Variable::class);
 	}
 
 }
