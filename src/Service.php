@@ -86,13 +86,15 @@ class Service extends Component
 	/**
 	 * Finds related products for the given product
 	 *
-	 * @param Product $product
-	 * @param int     $limit
+	 * @param Product           $product
+	 * @param int               $limit
+	 *
+	 * @param ProductQuery|null $paddingQuery
 	 *
 	 * @return ProductQuery
 	 * @throws \yii\db\Exception
 	 */
-	public function getRelatedProductsCriteria (Product $product, $limit = 8)
+	public function getRelatedProductsCriteria (Product $product, $limit = 8, ProductQuery $paddingQuery = null)
 	{
 		$id = $product->id;
 		$craft = \Craft::$app;
@@ -101,7 +103,7 @@ class Service extends Component
 SELECT product_a, product_b
 FROM {{%purchase_patterns}}
 WHERE (product_a = $id OR product_b = $id)
-ORDER BY purchase_count
+ORDER BY purchase_count DESC
 LIMIT $limit
 SQL;
 
@@ -114,7 +116,64 @@ SQL;
 					? $result['product_b']
 					: $result['product_a'];
 
+		if (count($productIds) < $limit && $paddingQuery)
+		{
+			$paddingLimit = $limit - count($productIds);
+			$paddingIds = $paddingQuery->limit($paddingLimit)->ids();
+			$productIds = array_merge($productIds, $paddingIds);
+		}
+
 		return Product::find()->id($productIds)->limit($limit);
+	}
+
+	/**
+	 * Returns the top 10 product combinations
+	 *
+	 * @return array
+	 * @throws \yii\db\Exception
+	 */
+	public function getTopBoughtTogether ()
+	{
+		$query = <<<SQL
+SELECT product_a, product_b, purchase_count
+FROM {{%purchase_patterns}}
+ORDER BY purchase_count DESC
+LIMIT 10
+SQL;
+
+		$results = \Craft::$app->db->createCommand($query)->queryAll();
+		$productIds = [];
+
+		foreach ($results as $result)
+		{
+			$idA = $result['product_a'];
+			$idB = $result['product_b'];
+
+			if (!in_array($idA, $productIds))
+				$productIds[] = $idA;
+
+			if (!in_array($idB, $productIds))
+				$productIds[] = $idB;
+		}
+
+		$products = Product::find()->id($productIds)->all();
+		$productsById = [];
+
+		foreach ($products as $product)
+			$productsById[$product->id] = $product;
+
+		$rows = [];
+
+		foreach ($results as $result)
+		{
+			$rows[] = [
+				'a' => $productsById[$result['product_a']],
+				'b' => $productsById[$result['product_b']],
+				'count' => $result['purchase_count']
+			];
+		}
+
+		return $rows;
 	}
 
 }

@@ -1,0 +1,26 @@
+<div class="boughttogether-container">
+	{% if combinations|length %}
+		<table class="data fullwidth">
+			<tbody>
+			{% for row in combinations %}
+				<tr>
+					<td>
+						<a href="{{ row.a.getCpEditUrl() }}">
+							{{ row.a.title }}
+						</a>
+						<span class="light">&mdash;</span>
+						<a href="{{ row.b.getCpEditUrl() }}">
+							{{ row.b.title }}
+						</a>
+					</td>
+					<td class="light">
+						{{ row.count }}
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	{% else %}
+		<p>{{ "There aren't any popular combinations yet!"|t('purchace-patterns') }}</p>
+	{% endif %}
+</div>

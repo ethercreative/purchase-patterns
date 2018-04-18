@@ -10,7 +10,10 @@ namespace ether\purchasePatterns;
 
 use craft\base\Plugin;
 use craft\commerce\elements\Order;
+use craft\events\RegisterComponentTypesEvent;
+use craft\services\Dashboard;
 use craft\web\twig\variables\CraftVariable;
+use ether\purchasePatterns\widgets\BoughtTogether;
 use yii\base\Event;
 
 
@@ -51,6 +54,12 @@ class PurchasePatterns extends Plugin
 			CraftVariable::class,
 			CraftVariable::EVENT_INIT,
 			[$this, 'onRegisterVariable']
+		);
+
+		Event::on(
+			Dashboard::class,
+			Dashboard::EVENT_REGISTER_WIDGET_TYPES,
+			[$this, 'onRegisterWidgets']
 		);
 	}
 
@@ -93,6 +102,14 @@ class PurchasePatterns extends Plugin
 		/** @var CraftVariable $variable */
 		$variable = $event->sender;
 		$variable->set('purchasePatterns', Variable::class);
+	}
+
+	/**
+	 * @param RegisterComponentTypesEvent $event
+	 */
+	public function onRegisterWidgets (RegisterComponentTypesEvent $event)
+	{
+		$event->types[] = BoughtTogether::class;
 	}
 
 }

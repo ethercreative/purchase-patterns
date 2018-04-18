@@ -14,7 +14,7 @@ Purchasable via the Plugin Store.
 Use the `craft.purchasePatterns.related` function in your templates to get related products that customers also bought.
 
 ```php
-ProductQuery related ( Product $myProduct [, int $limit = 8  ] )
+ProductQuery related ( Product $myProduct [, int $limit = 8 [, ProductQuery $paddingQuery = null ] ] )
 ```
 
 The function returns a `ProductQuery`, so you can include additional query parameters as needed. The `id` and `limit` parameters are already set and shouldn't be overridden.
@@ -25,3 +25,15 @@ The function returns a `ProductQuery`, so you can include additional query param
     10
 ).all() %}
 ```
+
+The `paddingQuery` allows you to specify a `ProductQuery` that will be used to pad out the related results if they fall below the given `limit`. This query should NOT include things like `order`, `limit`, or execution commands like `all`.
+
+```twig
+{% set customersAlsoBought = craft.purchasePatterns.related(
+    product,
+    20,
+    craft.products.relatedTo(product.myCategory)
+).order('random()').all() %}
+```
+
+**Note:** `random()` is Postgres specific. Use `RAND()` for MySQL.
