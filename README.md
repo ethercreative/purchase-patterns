@@ -7,7 +7,7 @@ This plugin requires Craft CMS 3.0.0 or later, and Craft Commerce 2.0.0-beta.2 o
 
 ## Installation
 
-`composer require ether/purchase-patterns`
+Purchasable via the Plugin Store.
 
 ## Usage
 
