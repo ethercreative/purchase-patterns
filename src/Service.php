@@ -53,20 +53,23 @@ class Service extends Component
 				$variantIds[] = $variantId;
 		}
 
+		sort($productIds);
+
 		try {
 			foreach ($productIds as $idA) {
 				foreach ($productIds as $idB) {
-					if ($idA === $idB)
+					if ($idA >= $idB)
 						continue;
 
 					\Craft::$app->db->createCommand()->upsert(
 						'{{%purchase_patterns}}', [
 							'product_a' => $idA,
 							'product_b' => $idB,
-							'purchase_count' => 0,
+							'purchase_count' => 1,
 						], [
-							// FIXME:                       column `purchase_count` is ambiguous
-							'purchase_count' => new Expression('purchase_count + 1')
+							'purchase_count' => new Expression(
+								'{{%purchase_patterns}}.purchase_count + 1'
+							),
 						],
 						[], false
 					)->execute();
@@ -108,8 +111,8 @@ SQL;
 		foreach ($results as $result)
 			$productIds[] =
 				$result['product_a'] === $id
-					? $result['product_a']
-					: $result['product_b'];
+					? $result['product_b']
+					: $result['product_a'];
 
 		return Product::find()->id($productIds)->limit($limit);
 	}
