@@ -36,4 +36,4 @@ The `paddingQuery` allows you to specify a `ProductQuery` that will be used to p
 ).order('random()').all() %}
 ```
 
-**Note:** `random()` is Postgres specific. Use `RAND()` for MySQL.
+**Editor's Note:** `random()` is Postgres specific. Use `RAND()` for MySQL.
