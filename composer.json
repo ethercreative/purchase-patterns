@@ -1,7 +1,7 @@
 {
   "name": "ether/purchase-patterns",
   "description": "Easily keep track of products customers bought together - for Craft Commerce 2",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0",
   "type": "craft-plugin",
   "license": "MIT",
   "minimum-stability": "dev",
