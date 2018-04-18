@@ -41,7 +41,7 @@ class Service extends Component
 			/** @var Variant $variant */
 			$variant = $item->purchasable;
 
-			if (!$variant)
+			if (!$variant || !($variant instanceof Variant))
 				continue;
 
 			$productId = $variant->productId;
@@ -94,10 +94,9 @@ class Service extends Component
 	 * @return ProductQuery
 	 * @throws \yii\db\Exception
 	 */
-	public function getRelatedProductsCriteria (Product $product, $limit = 8, ProductQuery $paddingQuery = null)
+	public function getRelatedToProductCriteria (Product $product, $limit = 8, ProductQuery $paddingQuery = null)
 	{
 		$id = $product->id;
-		$craft = \Craft::$app;
 
 		$query = <<<SQL
 SELECT product_a, product_b
@@ -107,7 +106,7 @@ ORDER BY purchase_count DESC
 LIMIT $limit
 SQL;
 
-		$results = $craft->db->createCommand($query)->queryAll();
+		$results = \Craft::$app->db->createCommand($query)->queryAll();
 		$productIds = [];
 
 		foreach ($results as $result)
@@ -123,7 +122,64 @@ SQL;
 			$productIds = array_merge($productIds, $paddingIds);
 		}
 
-		return Product::find()->id($productIds)->limit($limit);
+		return Product::find()->id($productIds);
+	}
+
+	/**
+	 * Finds related products for the given order
+	 *
+	 * @param Order             $order
+	 * @param int               $limit
+	 * @param ProductQuery|null $paddingQuery
+	 *
+	 * @return ProductQuery
+	 * @throws \yii\db\Exception
+	 */
+	public function getRelatedToOrderCriteria (Order $order, $limit = 8, ProductQuery $paddingQuery = null)
+	{
+		$orderProductIds = [];
+		foreach ($order->lineItems as $item)
+			/** @var $variant Variant */
+			if (($variant = $item->purchasable) && $variant instanceof Variant)
+				$orderProductIds[] = $variant->product->id;
+
+
+		if (empty($orderProductIds))
+			return Product::find()->limit($limit);
+
+		$idString = '(' . implode(',', $orderProductIds) . ')';
+
+		$query = <<<SQL
+SELECT product_a, product_b
+FROM {{%purchase_patterns}}
+WHERE (product_a IN $idString OR product_b in $idString)
+ORDER BY purchase_count DESC
+LIMIT $limit
+SQL;
+
+		$results = \Craft::$app->db->createCommand($query)->queryAll();
+		$productIds = [];
+
+		foreach ($results as $result)
+		{
+			$idA = $result['product_a'];
+			$idB = $result['product_b'];
+
+			if (!in_array($idA, $productIds) && !in_array($idA, $orderProductIds))
+				$productIds[] = $idA;
+
+			if (!in_array($idB, $productIds) && !in_array($idB, $orderProductIds))
+				$productIds[] = $idB;
+		}
+
+		if (count($productIds) < $limit && $paddingQuery)
+		{
+			$paddingLimit = $limit - count($productIds);
+			$paddingIds = $paddingQuery->limit($paddingLimit)->ids();
+			$productIds = array_merge($productIds, $paddingIds);
+		}
+
+		return Product::find()->id($productIds);
 	}
 
 	/**

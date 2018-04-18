@@ -9,7 +9,9 @@
 namespace ether\purchasePatterns;
 
 use craft\commerce\elements\db\ProductQuery;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use yii\base\InvalidConfigException;
 
 
 /**
@@ -25,7 +27,7 @@ class Variable
 	/**
 	 * Finds any relayed products for the given product
 	 *
-	 * @param Product           $product
+	 * @param Product|Order     $target
 	 * @param int               $limit
 	 * @param ProductQuery|null $paddingQuery
 	 *
@@ -33,15 +35,31 @@ class Variable
 	 * @throws \yii\base\InvalidConfigException
 	 * @throws \yii\db\Exception
 	 */
-	public function related (Product $product, $limit = 8, ProductQuery $paddingQuery = null)
+	public function related ($target, $limit = 8, ProductQuery $paddingQuery = null)
 	{
-		return PurchasePatterns::getInstance()
-		                       ->getService()
-		                       ->getRelatedProductsCriteria(
-		                       	    $product,
-		                            $limit,
-		                            $paddingQuery
-		                       );
+		$service = PurchasePatterns::getInstance()->getService();
+
+		if ($target instanceof Product)
+		{
+			return $service->getRelatedToProductCriteria(
+				$target,
+				$limit,
+				$paddingQuery
+			);
+		}
+
+		if ($target instanceof Order)
+		{
+			return $service->getRelatedToOrderCriteria(
+				$target,
+				$limit,
+				$paddingQuery
+			);
+		}
+
+		throw new InvalidConfigException(
+			"The target passed to craft.purchasePatterns.related is not a valid order or product"
+		);
 	}
 
 }
