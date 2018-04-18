@@ -3,7 +3,7 @@
   "description": "Easily keep track of products customers bought together - for Craft Commerce 2",
   "version": "1.0.0",
   "type": "craft-plugin",
-  "license": "MIT",
+  "license": "proprietary",
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {

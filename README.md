@@ -1,6 +1,10 @@
 # Purchase Patterns
 Easily keep track of products customers bought together — for Craft Commerce 2
 
+## Requirements
+
+This plugin requires Craft CMS 3.0.0 or later, and Craft Commerce 2.0.0-beta.2 or later.
+
 ## Installation
 
 `composer require ether/purchase-patterns`
