@@ -14,6 +14,7 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\services\Dashboard;
 use craft\web\twig\variables\CraftVariable;
 use ether\purchasePatterns\widgets\BoughtTogether;
+use ether\purchasePatterns\widgets\OrderHeatmap;
 use yii\base\Event;
 
 
@@ -110,6 +111,7 @@ class PurchasePatterns extends Plugin
 	public function onRegisterWidgets (RegisterComponentTypesEvent $event)
 	{
 		$event->types[] = BoughtTogether::class;
+		$event->types[] = OrderHeatmap::class;
 	}
 
 }

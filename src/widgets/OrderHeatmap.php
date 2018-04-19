@@ -13,13 +13,13 @@ use ether\purchasePatterns\PurchasePatterns;
 
 
 /**
- * Class BoughtTogether
+ * Class OrderHeatmap
  *
  * @author  Ether Creative
  * @package ether\purchasePatterns\widgets
  * @since   1.0.0
  */
-class BoughtTogether extends Widget
+class OrderHeatmap extends Widget
 {
 
 	// Public Methods
@@ -27,14 +27,14 @@ class BoughtTogether extends Widget
 
 	public static function isSelectable (): bool
 	{
-		return \Craft::$app->getUser()->checkPermission('commerce-manageProducts');
+		return \Craft::$app->getUser()->checkPermission('commerce-manageOrders');
 	}
 
 	public static function displayName (): string
 	{
 		return \Craft::t(
 			'purchase-patterns',
-			'Products Bought Together'
+			'Orders Heatmap'
 		);
 	}
 
@@ -44,21 +44,11 @@ class BoughtTogether extends Widget
 	}
 
 	/**
-	 * @return false|string
-	 * @throws \Twig_Error_Loader
-	 * @throws \yii\base\Exception
-	 * @throws \yii\base\InvalidConfigException
-	 * @throws \yii\db\Exception
+	 * @return string
 	 */
 	public function getBodyHtml ()
 	{
-		$combinations =
-			PurchasePatterns::getInstance()->getService()->getTopBoughtTogether();
-
-		return \Craft::$app->getView()->renderTemplate(
-			'purchase-patterns/_widgets/boughtTogether',
-			compact('combinations')
-		);
+		return 'hello';
 	}
 
 }
