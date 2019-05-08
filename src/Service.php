@@ -235,6 +235,9 @@ SQL;
 	}
 
 	/**
+	 * Gets the products bought with the given product and returns the name,
+	 * cp edit url, and order count
+	 *
 	 * @param Product $product
 	 *
 	 * @return array
