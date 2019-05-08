@@ -8,8 +8,8 @@
 
 namespace ether\purchasePatterns\widgets;
 
+use Craft;
 use craft\base\Widget;
-use ether\purchasePatterns\PurchasePatterns;
 
 
 /**
@@ -27,12 +27,12 @@ class OrderHeatmap extends Widget
 
 	public static function isSelectable (): bool
 	{
-		return \Craft::$app->getUser()->checkPermission('commerce-manageOrders');
+		return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
 	}
 
 	public static function displayName (): string
 	{
-		return \Craft::t(
+		return Craft::t(
 			'purchase-patterns',
 			'Orders Heatmap'
 		);
@@ -40,7 +40,7 @@ class OrderHeatmap extends Widget
 
 	public static function iconPath (): string
 	{
-		return \Craft::getAlias('@ether/purchasePatterns/resources/widget-icon.svg');
+		return Craft::getAlias('@ether/purchasePatterns/resources/widget-icon.svg');
 	}
 
 	/**

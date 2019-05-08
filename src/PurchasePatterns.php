@@ -16,6 +16,7 @@ use craft\web\twig\variables\CraftVariable;
 use ether\purchasePatterns\widgets\BoughtTogether;
 use ether\purchasePatterns\widgets\OrderHeatmap;
 use yii\base\Event;
+use yii\base\InvalidConfigException;
 
 
 /**
@@ -69,7 +70,7 @@ class PurchasePatterns extends Plugin
 
 	/**
 	 * @return Service
-	 * @throws \yii\base\InvalidConfigException
+	 * @throws InvalidConfigException
 	 */
 	public function getService (): Service
 	{
@@ -84,7 +85,7 @@ class PurchasePatterns extends Plugin
 	/**
 	 * @param Event $event
 	 *
-	 * @throws \yii\base\InvalidConfigException
+	 * @throws InvalidConfigException
 	 */
 	public function onOrderComplete (Event $event)
 	{
@@ -96,7 +97,7 @@ class PurchasePatterns extends Plugin
 	/**
 	 * @param Event $event
 	 *
-	 * @throws \yii\base\InvalidConfigException
+	 * @throws InvalidConfigException
 	 */
 	public function onRegisterVariable (Event $event)
 	{

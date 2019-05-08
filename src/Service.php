@@ -8,11 +8,13 @@
 
 namespace ether\purchasePatterns;
 
+use Craft;
 use craft\base\Component;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use yii\db\Exception;
 use yii\db\Expression;
 
 
@@ -61,7 +63,7 @@ class Service extends Component
 					if ($idA >= $idB)
 						continue;
 
-					\Craft::$app->db->createCommand()->upsert(
+					Craft::$app->db->createCommand()->upsert(
 						'{{%purchase_patterns}}', [
 							'product_a' => $idA,
 							'product_b' => $idB,
@@ -76,7 +78,7 @@ class Service extends Component
 				}
 			}
 		} catch (\Exception $e) {
-			\Craft::error(
+			Craft::error(
 				$e->getMessage(),
 				'PurchasePatterns'
 			);
@@ -92,7 +94,7 @@ class Service extends Component
 	 * @param ProductQuery|null $paddingQuery
 	 *
 	 * @return ProductQuery
-	 * @throws \yii\db\Exception
+	 * @throws Exception
 	 */
 	public function getRelatedToProductCriteria (Product $product, $limit = 8, ProductQuery $paddingQuery = null)
 	{
@@ -106,7 +108,7 @@ ORDER BY purchase_count DESC
 LIMIT $limit
 SQL;
 
-		$results = \Craft::$app->db->createCommand($query)->queryAll();
+		$results = Craft::$app->db->createCommand($query)->queryAll();
 		$productIds = [];
 
 		foreach ($results as $result)
@@ -133,7 +135,7 @@ SQL;
 	 * @param ProductQuery|null $paddingQuery
 	 *
 	 * @return ProductQuery
-	 * @throws \yii\db\Exception
+	 * @throws Exception
 	 */
 	public function getRelatedToOrderCriteria (Order $order, $limit = 8, ProductQuery $paddingQuery = null)
 	{
@@ -157,7 +159,7 @@ ORDER BY purchase_count DESC
 LIMIT $limit
 SQL;
 
-		$results = \Craft::$app->db->createCommand($query)->queryAll();
+		$results = Craft::$app->db->createCommand($query)->queryAll();
 		$productIds = [];
 
 		foreach ($results as $result)
@@ -186,7 +188,7 @@ SQL;
 	 * Returns the top 10 product combinations
 	 *
 	 * @return array
-	 * @throws \yii\db\Exception
+	 * @throws Exception
 	 */
 	public function getTopBoughtTogether ()
 	{
@@ -197,7 +199,7 @@ ORDER BY purchase_count DESC
 LIMIT 10
 SQL;
 
-		$results = \Craft::$app->db->createCommand($query)->queryAll();
+		$results = Craft::$app->db->createCommand($query)->queryAll();
 		$productIds = [];
 
 		foreach ($results as $result)
