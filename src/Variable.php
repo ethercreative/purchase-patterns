@@ -28,6 +28,8 @@ class Variable
 	/**
 	 * Finds any relayed products for the given product
 	 *
+	 * TODO: Add ability to exclude products or orders from the returned results
+	 *
 	 * @param Product|Order     $target
 	 * @param int               $limit
 	 * @param ProductQuery|null $paddingQuery
@@ -36,8 +38,11 @@ class Variable
 	 * @throws InvalidConfigException
 	 * @throws Exception
 	 */
-	public function related ($target, $limit = 8, ProductQuery $paddingQuery = null)
-	{
+	public function related (
+		$target,
+		$limit = 8,
+		ProductQuery $paddingQuery = null
+	) {
 		$service = PurchasePatterns::getInstance()->getService();
 
 		if ($target instanceof Product)
