@@ -25,8 +25,10 @@ The function returns a `ProductQuery`, so you can include additional query param
 {% set customersAlsoBought = craft.purchasePatterns.related(
     product,
     10
-).all() %}
+).fixedOrder(true).all() %}
 ```
+
+Setting `fixedOrder` to true will sort the products by times purchased together.
 
 The `paddingQuery` allows you to specify a `ProductQuery` that will be used to pad out the related results if they fall below the given `limit`. This query should NOT include things like `order`, `limit`, or execution commands like `all`.
 

@@ -8,6 +8,7 @@
 
 namespace ether\purchasePatterns;
 
+use Craft;
 use craft\base\Plugin;
 use craft\commerce\elements\Order;
 use craft\events\RegisterComponentTypesEvent;
@@ -15,8 +16,12 @@ use craft\services\Dashboard;
 use craft\web\twig\variables\CraftVariable;
 use ether\purchasePatterns\widgets\BoughtTogether;
 use ether\purchasePatterns\widgets\OrderHeatmap;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use yii\base\Event;
 use yii\base\InvalidConfigException;
+use yii\db\Exception;
 
 
 /**
@@ -46,6 +51,9 @@ class PurchasePatterns extends Plugin
 			'service' => Service::class,
 		]);
 
+		// Events
+		// ---------------------------------------------------------------------
+
 		Event::on(
 			Order::class,
 			Order::EVENT_AFTER_COMPLETE_ORDER,
@@ -63,6 +71,15 @@ class PurchasePatterns extends Plugin
 			Dashboard::EVENT_REGISTER_WIDGET_TYPES,
 			[$this, 'onRegisterWidgets']
 		);
+
+		// Hooks
+		// ---------------------------------------------------------------------
+
+		Craft::$app->getView()->hook(
+			'cp.commerce.product.edit.details',
+			[$this, 'hookProductEditDetails']
+		);
+
 	}
 
 	// Services
@@ -113,6 +130,31 @@ class PurchasePatterns extends Plugin
 	{
 		$event->types[] = BoughtTogether::class;
 		$event->types[] = OrderHeatmap::class;
+	}
+
+	// Hooks
+	// =========================================================================
+
+	/**
+	 * @param array $context
+	 *
+	 * @return string
+	 * @throws LoaderError
+	 * @throws RuntimeError
+	 * @throws SyntaxError
+	 * @throws InvalidConfigException
+	 * @throws Exception
+	 */
+	public function hookProductEditDetails (array &$context)
+	{
+		$purchasedWith = $this->getService()->getBoughtTogetherMeta(
+			$context['product']
+		);
+
+		return Craft::$app->getView()->renderTemplate(
+			'purchase-patterns/_product/edit',
+			array_merge($context, compact('purchasedWith'))
+		);
 	}
 
 }

@@ -1,0 +1,12 @@
+</div>
+<hr>
+<div class="meta">
+	<h4>Purchased With</h4>
+	<ul>
+		{% for p in purchasedWith %}
+			<li>
+				<a href="{{ p.cpEditUrl }}">{{ p.title }} ({{ p.count }})</a>
+			</li>
+		{% endfor %}
+	</ul>
+</div>

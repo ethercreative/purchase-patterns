@@ -234,4 +234,47 @@ SQL;
 		return $rows;
 	}
 
+	/**
+	 * @param Product $product
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getBoughtTogetherMeta (Product $product)
+	{
+		$id = $product->id;
+
+		$query = <<<SQL
+SELECT *
+FROM {{%purchase_patterns}}
+WHERE (product_a = $id OR product_b = $id)
+ORDER BY purchase_count DESC
+LIMIT 10
+SQL;
+
+		$results = Craft::$app->getDb()->createCommand($query)->queryAll();
+		$productIds = [];
+		$countByProductId = [];
+
+		foreach ($results as $result)
+		{
+			$id =
+				$result['product_a'] === $id
+					? $result['product_b']
+					: $result['product_a'];
+			$productIds[] = $id;
+			$countByProductId[$id] = $result['purchase_count'];
+		}
+
+		$products = Product::find()->id($productIds)->fixedOrder(true)->all();
+
+		return array_map(function (Product $product) use ($countByProductId) {
+			return [
+				'title' => $product->title,
+				'cpEditUrl' => $product->getCpEditUrl(),
+				'count' => $countByProductId[$product->id],
+			];
+		}, $products);
+	}
+
 }
