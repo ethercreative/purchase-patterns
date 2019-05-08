@@ -8,8 +8,14 @@
 
 namespace ether\purchasePatterns\widgets;
 
+use Craft;
 use craft\base\Widget;
 use ether\purchasePatterns\PurchasePatterns;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use yii\base\InvalidConfigException;
+use yii\db\Exception;
 
 
 /**
@@ -27,12 +33,12 @@ class BoughtTogether extends Widget
 
 	public static function isSelectable (): bool
 	{
-		return \Craft::$app->getUser()->checkPermission('commerce-manageProducts');
+		return Craft::$app->getUser()->checkPermission('commerce-manageProducts');
 	}
 
 	public static function displayName (): string
 	{
-		return \Craft::t(
+		return Craft::t(
 			'purchase-patterns',
 			'Products Bought Together'
 		);
@@ -40,22 +46,23 @@ class BoughtTogether extends Widget
 
 	public static function iconPath (): string
 	{
-		return \Craft::getAlias('@ether/purchasePatterns/resources/widget-icon.svg');
+		return Craft::getAlias('@ether/purchasePatterns/resources/widget-icon.svg');
 	}
 
 	/**
 	 * @return false|string
-	 * @throws \Twig_Error_Loader
-	 * @throws \yii\base\Exception
-	 * @throws \yii\base\InvalidConfigException
-	 * @throws \yii\db\Exception
+	 * @throws Exception
+	 * @throws InvalidConfigException
+	 * @throws LoaderError
+	 * @throws RuntimeError
+	 * @throws SyntaxError
 	 */
 	public function getBodyHtml ()
 	{
 		$combinations =
 			PurchasePatterns::getInstance()->getService()->getTopBoughtTogether();
 
-		return \Craft::$app->getView()->renderTemplate(
+		return Craft::$app->getView()->renderTemplate(
 			'purchase-patterns/_widgets/boughtTogether',
 			compact('combinations')
 		);

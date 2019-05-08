@@ -242,12 +242,10 @@ SQL;
 	 */
 	public function getBoughtTogetherMeta (Product $product)
 	{
-		$id = $product->id;
-
 		$query = <<<SQL
 SELECT *
 FROM {{%purchase_patterns}}
-WHERE (product_a = $id OR product_b = $id)
+WHERE (product_a = {$product->id} OR product_b = {$product->id})
 ORDER BY purchase_count DESC
 LIMIT 10
 SQL;
@@ -258,12 +256,19 @@ SQL;
 
 		foreach ($results as $result)
 		{
-			$id =
-				$result['product_a'] === $id
-					? $result['product_b']
-					: $result['product_a'];
+			$id = $result['product_a'] === $product->id
+				? $result['product_b']
+				: $result['product_a'];
+
+			if ($id === $product->id)
+				continue;
+
 			$productIds[] = $id;
-			$countByProductId[$id] = $result['purchase_count'];
+
+			if (!array_key_exists($id, $countByProductId))
+				$countByProductId[$id] = 0;
+
+			$countByProductId[$id] += $result['purchase_count'];
 		}
 
 		$products = Product::find()->id($productIds)->fixedOrder(true)->all();
