@@ -1,7 +1,7 @@
 ![Purchase Patterns](resources/banner.jpg)
 
 # Purchase Patterns
-Easily keep track of products customers bought together and sort by sales
+Easily keep track of and show products customers bought together. Plus, sorting by individual and order sales.
 
 ## Requirements
 
