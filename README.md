@@ -1,7 +1,7 @@
 ![Purchase Patterns](resources/banner.jpg)
 
 # Purchase Patterns
-Easily keep track of products customers bought together — for Craft Commerce 2
+Easily keep track of products customers bought together and sort by sales
 
 ## Requirements
 

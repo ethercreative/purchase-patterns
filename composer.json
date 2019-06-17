@@ -1,6 +1,6 @@
 {
   "name": "ether/purchase-patterns",
-  "description": "Easily keep track of products customers bought together - for Craft Commerce 2",
+  "description": "Easily keep track of products customers bought together and sort by sales",
   "version": "1.1.0",
   "type": "craft-plugin",
   "license": "proprietary",
