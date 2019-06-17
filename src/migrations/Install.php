@@ -24,6 +24,7 @@ class Install extends Migration
 	public function safeUp ()
 	{
 		$this->_createPatternsTable();
+		$this->_createPurchasesTable();
 
 		return true;
 	}
@@ -31,6 +32,7 @@ class Install extends Migration
 	public function safeDown ()
 	{
 		$this->dropTableIfExists('{{%purchase_patterns}}');
+		$this->dropTableIfExists('{{%purchase_counts}}');
 
 		return true;
 	}
@@ -40,8 +42,6 @@ class Install extends Migration
 
 	private function _createPatternsTable ()
 	{
-		// Table
-
 		$this->createTable('{{%purchase_patterns}}', [
 			'id'             => $this->primaryKey(),
 			'product_a'      => $this->integer()->notNull(),
@@ -49,13 +49,58 @@ class Install extends Migration
 			'purchase_count' => $this->integer()->notNull(),
 		]);
 
-		// Indexes
-
 		$this->createIndex(
 			null,
 			'{{%purchase_patterns}}',
 			['product_a', 'product_b'],
 			true
+		);
+
+		$this->addForeignKey(
+			null,
+			'{{%purchase_patterns}}',
+			'product_a',
+			'{{%commerce_products}}',
+			'id',
+			'CASCADE',
+			null
+		);
+
+		$this->addForeignKey(
+			null,
+			'{{%purchase_patterns}}',
+			'product_b',
+			'{{%commerce_products}}',
+			'id',
+			'CASCADE',
+			null
+		);
+	}
+
+	private function _createPurchasesTable ()
+	{
+		$this->createTable('{{%purchase_counts}}', [
+			'id'          => $this->primaryKey(),
+			'product_id'  => $this->integer()->notNull(),
+			'order_count' => $this->integer()->notNull(),
+			'qty_count'   => $this->integer()->notNull(),
+		]);
+
+		$this->createIndex(
+			null,
+			'{{%purchase_counts}}',
+			'product_id',
+			true
+		);
+
+		$this->addForeignKey(
+			null,
+			'{{%purchase_counts}}',
+			'product_id',
+			'{{%commerce_products}}',
+			'id',
+			'CASCADE',
+			null
 		);
 	}
 

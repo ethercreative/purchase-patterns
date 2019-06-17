@@ -14,6 +14,7 @@ use craft\commerce\elements\Order;
 use craft\events\RegisterComponentTypesEvent;
 use craft\services\Dashboard;
 use craft\web\twig\variables\CraftVariable;
+use ether\purchasePatterns\jobs\PopulateDataJob;
 use ether\purchasePatterns\widgets\BoughtTogether;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -97,6 +98,13 @@ class PurchasePatterns extends Plugin
 
 	// Events
 	// =========================================================================
+
+	protected function afterInstall ()
+	{
+		parent::afterInstall();
+
+		Craft::$app->getQueue()->push(new PopulateDataJob());
+	}
 
 	/**
 	 * @param Event $event

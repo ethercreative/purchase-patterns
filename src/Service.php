@@ -14,6 +14,7 @@ use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use ether\purchasePatterns\elements\db\ProductQueryExtended;
 use yii\db\Exception;
 use yii\db\Expression;
 
@@ -35,13 +36,16 @@ class Service extends Component
 	 */
 	public function tallyProducts (Order $order)
 	{
+		$db = Craft::$app->getDb();
+
 		$productIds = [];
+		$productQtys = [];
 		$variantIds = [];
 
-		foreach ($order->lineItems as $item)
+		foreach ($order->getLineItems() as $item)
 		{
 			/** @var Variant $variant */
-			$variant = $item->purchasable;
+			$variant = $item->getPurchasable();
 
 			if (!$variant || !($variant instanceof Variant))
 				continue;
@@ -53,17 +57,38 @@ class Service extends Component
 			$variantId = $variant->id;
 			if (!in_array($variantId, $variantIds))
 				$variantIds[] = $variantId;
+
+			if (!in_array($productId, $productQtys))
+				$productQtys[$productId] = 0;
+			$productQtys[$productId] += $item->qty;
 		}
 
 		sort($productIds);
 
 		try {
 			foreach ($productIds as $idA) {
+				$qty = $productQtys[$idA];
+				$db->createCommand()->upsert(
+					'{{%purchase_counts}}', [
+						'product_id'  => $idA,
+						'order_count' => 1,
+						'qty_count'   => $qty,
+					], [
+						'order_count' => new Expression(
+							'{{%purchase_counts}}.order_count + 1'
+						),
+						'qty_count'   => new Expression(
+							'{{%purchase_counts}}.qty_count + ' . $qty
+						),
+					],
+					[], false
+				)->execute();
+
 				foreach ($productIds as $idB) {
 					if ($idA >= $idB)
 						continue;
 
-					Craft::$app->db->createCommand()->upsert(
+					$db->createCommand()->upsert(
 						'{{%purchase_patterns}}', [
 							'product_a' => $idA,
 							'product_b' => $idB,
@@ -93,7 +118,7 @@ class Service extends Component
 	 *
 	 * @param ProductQuery|null $paddingQuery
 	 *
-	 * @return ProductQuery
+	 * @return ProductQueryExtended
 	 * @throws Exception
 	 */
 	public function getRelatedToProductCriteria (Product $product, $limit = 8, ProductQuery $paddingQuery = null)
@@ -124,7 +149,7 @@ SQL;
 			$productIds = array_merge($productIds, $paddingIds);
 		}
 
-		return Product::find()->id($productIds);
+		return $this->_getQuery()->id($productIds);
 	}
 
 	/**
@@ -134,7 +159,7 @@ SQL;
 	 * @param int               $limit
 	 * @param ProductQuery|null $paddingQuery
 	 *
-	 * @return ProductQuery
+	 * @return ProductQueryExtended
 	 * @throws Exception
 	 */
 	public function getRelatedToOrderCriteria (Order $order, $limit = 8, ProductQuery $paddingQuery = null)
@@ -147,7 +172,7 @@ SQL;
 
 
 		if (empty($orderProductIds))
-			return Product::find()->limit($limit);
+			return $this->_getQuery()->limit($limit);
 
 		$idString = '(' . implode(',', $orderProductIds) . ')';
 
@@ -181,7 +206,7 @@ SQL;
 			$productIds = array_merge($productIds, $paddingIds);
 		}
 
-		return Product::find()->id($productIds);
+		return $this->_getQuery()->id($productIds);
 	}
 
 	/**
@@ -283,6 +308,14 @@ SQL;
 				'count' => $countByProductId[$product->id],
 			];
 		}, $products);
+	}
+
+	/**
+	 * @return ProductQueryExtended
+	 */
+	private function _getQuery ()
+	{
+		return new ProductQueryExtended(Product::class);
 	}
 
 }

@@ -8,9 +8,11 @@
 
 namespace ether\purchasePatterns;
 
+use Craft;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use ether\purchasePatterns\elements\db\ProductQueryExtended;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 
@@ -66,6 +68,23 @@ class Variable
 		throw new InvalidConfigException(
 			"The target passed to craft.purchasePatterns.related is not a valid order or product"
 		);
+	}
+
+	/**
+	 * Returns an extended product query
+	 *
+	 * @param mixed|null $criteria
+	 *
+	 * @return ProductQueryExtended
+	 */
+	public function extended ($criteria = null)
+	{
+		$query = new ProductQueryExtended(Product::class);
+
+		if ($criteria)
+			Craft::configure($query, $criteria);
+
+		return $query;
 	}
 
 }

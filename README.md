@@ -16,10 +16,10 @@ Purchasable via the Plugin Store.
 Use the `craft.purchasePatterns.related` function in your templates to get related products that customers also bought.
 
 ```php
-ProductQuery related ( Product|Order $target [, int $limit = 8 [, ProductQuery $paddingQuery = null ] ] )
+ProductQueryExtended related ( Product|Order $target [, int $limit = 8 [, ProductQuery $paddingQuery = null ] ] )
 ```
 
-The function returns a `ProductQuery`, so you can include additional query parameters as needed. The `id` parameter is already set and shouldn't be overridden.
+The function returns a `ProductQueryExtended`, so you can include additional query parameters as needed. The `id` parameter is already set and shouldn't be overridden.
 
 ```twig
 {% set customersAlsoBought = craft.purchasePatterns.related(
@@ -41,3 +41,13 @@ The `paddingQuery` allows you to specify a `ProductQuery` that will be used to p
 ```
 
 **Editor's Note:** `random()` is Postgres specific. Use `RAND()` for MySQL.
+
+### Extended Product Query
+
+The extended product query allows you to sort the products by `qtyCount` and `orderCount`. 
+It extends the base product query, to you can use it the same way as you would `craft.products`. 
+The `related` query above returns an extended query, as does:
+
+```twig
+{% set products = craft.purchasePatterns.extended().orderBy('orderCount DESC').all() %}
+``` 
