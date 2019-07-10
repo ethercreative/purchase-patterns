@@ -11,6 +11,7 @@ namespace ether\purchasePatterns;
 use Craft;
 use craft\base\Plugin;
 use craft\commerce\elements\Order;
+use craft\commerce\elements\Product;
 use craft\events\RegisterComponentTypesEvent;
 use craft\services\Dashboard;
 use craft\web\twig\variables\CraftVariable;
@@ -153,9 +154,13 @@ class PurchasePatterns extends Plugin
 	 */
 	public function hookProductEditDetails (array &$context)
 	{
-		$purchasedWith = $this->getService()->getBoughtTogetherMeta(
-			$context['product']
-		);
+		/** @var Product $product */
+		$product = $context['product'];
+
+		if (!$product->id)
+			return null;
+
+		$purchasedWith = $this->getService()->getBoughtTogetherMeta($product);
 
 		return Craft::$app->getView()->renderTemplate(
 			'purchase-patterns/_product/edit',

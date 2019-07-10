@@ -1,3 +1,7 @@
+## 1.1.1 - 2019-07-10
+### Fixed
+- Fixed database error when creating new products
+
 ## 1.1.0 - 2019-06-17
 ### Added
 - Added "Extended" product query (requires fresh install)
