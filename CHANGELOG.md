@@ -1,3 +1,7 @@
+## 1.1.2 - 2019-10-24
+### Fixed
+- Fix error with prefixed databases (via [@jmauzyk](https://github.com/jmauzyk))
+
 ## 1.1.1 - 2019-07-10
 ### Fixed
 - Fixed database error when creating new products
