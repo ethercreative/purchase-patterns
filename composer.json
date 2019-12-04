@@ -1,7 +1,7 @@
 {
   "name": "ether/purchase-patterns",
   "description": "Easily keep track of and show products customers bought together. Plus, sorting by individual and order sales.",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "type": "craft-plugin",
   "license": "proprietary",
   "minimum-stability": "dev",
@@ -19,7 +19,7 @@
     "email": "tam@ethercreative.co.uk"
   },
   "extra": {
-    "handle": "purchasePatterns",
+    "handle": "purchase-patterns",
     "name": "Purchase Patterns",
     "developer": "Ether Creative",
     "developerUrl": "https://ethercreative.co.uk",

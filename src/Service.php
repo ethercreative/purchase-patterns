@@ -239,7 +239,7 @@ SQL;
 				$productIds[] = $idB;
 		}
 
-		$products = Product::find()->id($productIds)->all();
+		$products = Product::find()->id($productIds)->anyStatus()->all();
 		$productsById = [];
 
 		foreach ($products as $product)
@@ -299,7 +299,7 @@ SQL;
 			$countByProductId[$id] += $result['purchase_count'];
 		}
 
-		$products = Product::find()->id($productIds)->fixedOrder(true)->all();
+		$products = Product::find()->id($productIds)->anyStatus()->fixedOrder(true)->all();
 
 		return array_map(function (Product $product) use ($countByProductId) {
 			return [

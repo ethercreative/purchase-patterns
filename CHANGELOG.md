@@ -1,3 +1,8 @@
+## 1.1.3 - 2019-12-04
+### Fixed
+- Fix widget error when showing disabled products (Fixes #2)
+- Fix plugin handle format
+
 ## 1.1.2 - 2019-10-24
 ### Fixed
 - Fix error with prefixed databases (via [@jmauzyk](https://github.com/jmauzyk))
