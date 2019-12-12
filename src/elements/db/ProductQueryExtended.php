@@ -21,7 +21,7 @@ class ProductQueryExtended extends ProductQuery
 
 	protected function beforePrepare (): bool
 	{
-		$this->innerJoin(
+		$this->leftJoin(
 			'{{%purchase_counts}} purchase_counts',
 			'[[commerce_products.id]] = [[purchase_counts.product_id]]'
 		);
