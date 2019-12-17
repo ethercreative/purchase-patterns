@@ -35,6 +35,7 @@ class Variable
 	 * @param Product|Order     $target
 	 * @param int               $limit
 	 * @param ProductQuery|null $paddingQuery
+     * @param array             $filters
 	 *
 	 * @return ProductQuery
 	 * @throws InvalidConfigException
@@ -43,7 +44,8 @@ class Variable
 	public function related (
 		$target,
 		$limit = 8,
-		ProductQuery $paddingQuery = null
+		ProductQuery $paddingQuery = null,
+        array $filters = []
 	) {
 		$service = PurchasePatterns::getInstance()->getService();
 
@@ -52,7 +54,8 @@ class Variable
 			return $service->getRelatedToProductCriteria(
 				$target,
 				$limit,
-				$paddingQuery
+				$paddingQuery,
+                $filters
 			);
 		}
 
@@ -61,7 +64,8 @@ class Variable
 			return $service->getRelatedToOrderCriteria(
 				$target,
 				$limit,
-				$paddingQuery
+				$paddingQuery,
+                $filters
 			);
 		}
 
