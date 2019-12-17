@@ -38,9 +38,9 @@ class Service extends Component
 	{
 		$db = Craft::$app->getDb();
 
-		$productIds = [];
+		$productIds  = [];
 		$productQtys = [];
-		$variantIds = [];
+		$variantIds  = [];
 
 		foreach ($order->getLineItems() as $item)
 		{
@@ -65,44 +65,36 @@ class Service extends Component
 
 		sort($productIds);
 
-		try {
-			foreach ($productIds as $idA) {
+		try
+		{
+			foreach ($productIds as $idA)
+			{
 				$qty = $productQtys[$idA];
-				$db->createCommand()->upsert(
-					'{{%purchase_counts}}', [
-						'product_id'  => $idA,
-						'order_count' => 1,
-						'qty_count'   => $qty,
-					], [
-						'order_count' => new Expression(
-							'{{%purchase_counts}}.order_count + 1'
-						),
-						'qty_count'   => new Expression(
-							'{{%purchase_counts}}.qty_count + ' . $qty
-						),
-					],
-					[], false
-				)->execute();
+				$db->createCommand()->upsert('{{%purchase_counts}}', [
+					'product_id'  => $idA,
+					'order_count' => 1,
+					'qty_count'   => $qty,
+				], [
+					'order_count' => new Expression('{{%purchase_counts}}.order_count + 1'),
+					'qty_count'   => new Expression('{{%purchase_counts}}.qty_count + ' . $qty),
+				], [], false)->execute();
 
-				foreach ($productIds as $idB) {
+				foreach ($productIds as $idB)
+				{
 					if ($idA >= $idB)
 						continue;
 
-					$db->createCommand()->upsert(
-						'{{%purchase_patterns}}', [
-							'product_a' => $idA,
-							'product_b' => $idB,
-							'purchase_count' => 1,
-						], [
-							'purchase_count' => new Expression(
-								'{{%purchase_patterns}}.purchase_count + 1'
-							),
-						],
-						[], false
-					)->execute();
+					$db->createCommand()->upsert('{{%purchase_patterns}}', [
+						'product_a'      => $idA,
+						'product_b'      => $idB,
+						'purchase_count' => 1,
+					], [
+						'purchase_count' => new Expression('{{%purchase_patterns}}.purchase_count + 1'),
+					], [], false)->execute();
 				}
 			}
-		} catch (\Exception $e) {
+		} catch (\Exception $e)
+		{
 			Craft::error(
 				$e->getMessage(),
 				'PurchasePatterns'
@@ -116,13 +108,15 @@ class Service extends Component
 	 * @param Product           $product
 	 * @param int               $limit
 	 * @param ProductQuery|null $paddingQuery
-     * @param array             $filters
+	 * @param array             $filters
 	 *
 	 * @return ProductQueryExtended
 	 * @throws Exception
 	 */
-	public function getRelatedToProductCriteria (Product $product, $limit = 8, ProductQuery $paddingQuery = null, array $filters = [])
-	{
+	public function getRelatedToProductCriteria (
+		Product $product, $limit = 8, ProductQuery $paddingQuery = null,
+		array $filters = []
+	) {
 		$id = $product->id;
 
 		$query = <<<SQL
@@ -132,7 +126,7 @@ WHERE (product_a = $id OR product_b = $id)
 ORDER BY purchase_count DESC
 SQL;
 
-		$results = Craft::$app->db->createCommand($query)->queryAll();
+		$results    = Craft::$app->db->createCommand($query)->queryAll();
 		$productIds = [];
 
 		foreach ($results as $result)
@@ -141,26 +135,29 @@ SQL;
 					? $result['product_b']
 					: $result['product_a'];
 
-        if (!empty($filters)) {
-            $query = Product::find()
-                ->id($productIds)
-                ->limit($limit);
+		if (!empty($filters))
+		{
+			$query = Product::find()
+				->id($productIds)
+				->limit($limit);
 
-            foreach ($filters as $prop => $val) {
-                $query->$prop($val);
-            }
+			foreach ($filters as $prop => $val)
+				$query->$prop($val);
 
-            $productIds = $query->ids();
-        }
+			$productIds = $query->ids();
+		}
 
-		if (count($productIds) < $limit && $paddingQuery) {
-            $this->_mergeIds($paddingQuery, $productIds);
+		if (count($productIds) < $limit && $paddingQuery)
+		{
+			$this->_mergeIds($paddingQuery, $productIds);
 			$paddingLimit = $limit - count($productIds);
-			$paddingIds = $paddingQuery->limit($paddingLimit)->ids();
-			$productIds = array_merge($productIds, $paddingIds);
-		} else {
-            $productIds = array_slice($productIds, 0, $limit);
-        }
+			$paddingIds   = $paddingQuery->limit($paddingLimit)->ids();
+			$productIds   = array_merge($productIds, $paddingIds);
+		}
+		else
+		{
+			$productIds = array_slice($productIds, 0, $limit);
+		}
 
 		return $this->_getQuery()->id($productIds);
 	}
@@ -171,13 +168,15 @@ SQL;
 	 * @param Order             $order
 	 * @param int               $limit
 	 * @param ProductQuery|null $paddingQuery
-     * @param array             $filters
+	 * @param array             $filters
 	 *
 	 * @return ProductQueryExtended
 	 * @throws Exception
 	 */
-	public function getRelatedToOrderCriteria (Order $order, $limit = 8, ProductQuery $paddingQuery = null, array $filters = [])
-	{
+	public function getRelatedToOrderCriteria (
+		Order $order, $limit = 8, ProductQuery $paddingQuery = null,
+		array $filters = []
+	) {
 		$orderProductIds = [];
 		foreach ($order->lineItems as $item)
 			/** @var $variant Variant */
@@ -185,20 +184,23 @@ SQL;
 				$orderProductIds[] = $variant->product->id;
 
 
-		if (empty($orderProductIds)) {
-            $results = [];
-        } else {
-            $idString = '(' . implode(',', $orderProductIds) . ')';
+		if (empty($orderProductIds))
+		{
+			$results = [];
+		}
+		else
+		{
+			$idString = '(' . implode(',', $orderProductIds) . ')';
 
-    		$query = <<<SQL
+			$query = <<<SQL
 SELECT product_a, product_b
 FROM {{%purchase_patterns}}
 WHERE (product_a IN $idString OR product_b in $idString)
 ORDER BY purchase_count DESC
 SQL;
 
-    		$results = Craft::$app->db->createCommand($query)->queryAll();
-        }
+			$results = Craft::$app->db->createCommand($query)->queryAll();
+		}
 
 		$productIds = [];
 
@@ -207,33 +209,38 @@ SQL;
 			$idA = $result['product_a'];
 			$idB = $result['product_b'];
 
-			if (!in_array($idA, $productIds) && !in_array($idA, $orderProductIds))
+			if (!in_array($idA, $productIds) &&
+			    !in_array($idA, $orderProductIds))
 				$productIds[] = $idA;
 
-			if (!in_array($idB, $productIds) && !in_array($idB, $orderProductIds))
+			if (!in_array($idB, $productIds) &&
+			    !in_array($idB, $orderProductIds))
 				$productIds[] = $idB;
 		}
 
-        if (!empty($filters)) {
-            $query = Product::find()
-                ->id($productIds)
-                ->limit($limit);
+		if (!empty($filters))
+		{
+			$query = Product::find()
+				->id($productIds)
+				->limit($limit);
 
-            foreach ($filters as $prop => $val) {
-                $query->$prop($val);
-            }
+			foreach ($filters as $prop => $val)
+				$query->$prop($val);
 
-            $productIds = $query->ids();
-        }
+			$productIds = $query->ids();
+		}
 
-		if (count($productIds) < $limit && $paddingQuery) {
-            $this->_mergeIds($paddingQuery, $productIds);
+		if (count($productIds) < $limit && $paddingQuery)
+		{
+			$this->_mergeIds($paddingQuery, $productIds);
 			$paddingLimit = $limit - count($productIds);
-			$paddingIds = $paddingQuery->limit($paddingLimit)->ids();
-			$productIds = array_merge($productIds, $paddingIds);
-		} else {
-            $productIds = array_slice($productIds, 0, $limit);
-        }
+			$paddingIds   = $paddingQuery->limit($paddingLimit)->ids();
+			$productIds   = array_merge($productIds, $paddingIds);
+		}
+		else
+		{
+			$productIds = array_slice($productIds, 0, $limit);
+		}
 
 		return $this->_getQuery()->id($productIds);
 	}
@@ -253,7 +260,7 @@ ORDER BY purchase_count DESC
 LIMIT 10
 SQL;
 
-		$results = Craft::$app->db->createCommand($query)->queryAll();
+		$results    = Craft::$app->db->createCommand($query)->queryAll();
 		$productIds = [];
 
 		foreach ($results as $result)
@@ -268,7 +275,7 @@ SQL;
 				$productIds[] = $idB;
 		}
 
-		$products = Product::find()->id($productIds)->anyStatus()->all();
+		$products     = Product::find()->id($productIds)->anyStatus()->all();
 		$productsById = [];
 
 		foreach ($products as $product)
@@ -279,9 +286,9 @@ SQL;
 		foreach ($results as $result)
 		{
 			$rows[] = [
-				'a' => $productsById[$result['product_a']],
-				'b' => $productsById[$result['product_b']],
-				'count' => $result['purchase_count']
+				'a'     => $productsById[$result['product_a']],
+				'b'     => $productsById[$result['product_b']],
+				'count' => $result['purchase_count'],
 			];
 		}
 
@@ -307,8 +314,8 @@ ORDER BY purchase_count DESC
 LIMIT 10
 SQL;
 
-		$results = Craft::$app->getDb()->createCommand($query)->queryAll();
-		$productIds = [];
+		$results          = Craft::$app->getDb()->createCommand($query)->queryAll();
+		$productIds       = [];
 		$countByProductId = [];
 
 		foreach ($results as $result)
@@ -328,15 +335,19 @@ SQL;
 			$countByProductId[$id] += $result['purchase_count'];
 		}
 
-		$products = Product::find()->id($productIds)->anyStatus()->fixedOrder(true)->all();
+		$products =
+			Product::find()->id($productIds)->anyStatus()->fixedOrder(true)
+			       ->all();
 
-		return array_map(function (Product $product) use ($countByProductId) {
-			return [
-				'title' => $product->title,
-				'cpEditUrl' => $product->getCpEditUrl(),
-				'count' => $countByProductId[$product->id],
-			];
-		}, $products);
+		return array_map(
+			function (Product $product) use ($countByProductId) {
+				return [
+					'title'     => $product->title,
+					'cpEditUrl' => $product->getCpEditUrl(),
+					'count'     => $countByProductId[$product->id],
+				];
+			}, $products
+		);
 	}
 
 	/**
@@ -347,40 +358,42 @@ SQL;
 		return new ProductQueryExtended(Product::class);
 	}
 
-    /**
-     * @param ProductQuery $paddingQuery
-     * @param array        $productIds
-     *
-     * @return void
-     */
-    private function _mergeIds(ProductQuery $paddingQuery, array $productIds)
-    {
-        switch (gettype($paddingQuery->id)) {
-            case 'integer':
-                if (in_array($paddingQuery->id, $productIds)) {
-                    $newIds = false;
-                }
-                break;
-            case 'string':
-                if (strtolower(substr($paddingQuery->id, 0, 3)) === 'not') {
-                    $newIds = explode(' ', $paddingQuery->id);
-                    $newIds = array_merge($newIds, $productIds);
-                } elseif (in_array($paddingQuery->id, $productIds)) {
-                    $newIds = false;
-                }
-                break;
-            case 'array':
-                if (strtolower($paddingQuery->id[0]) === 'not') {
-                    $newIds = array_merge($paddingQuery->id, $productIds);
-                } else {
-                    $newIds = array_diff($paddingQuery->id, $productIds);
-                }
-                break;
-            case 'NULL':
-                $newIds = array_merge(['not'], $productIds);
-                break;
-        }
-        $paddingQuery->id($newIds);
-    }
+	/**
+	 * @param ProductQuery $paddingQuery
+	 * @param array        $productIds
+	 *
+	 * @return void
+	 */
+	private function _mergeIds (ProductQuery $paddingQuery, array $productIds)
+	{
+		$newIds = null;
+
+		switch (gettype($paddingQuery->id))
+		{
+			case 'integer':
+				if (in_array($paddingQuery->id, $productIds))
+					$newIds = false;
+				break;
+			case 'string':
+				if (strtolower(substr($paddingQuery->id, 0, 3)) === 'not') {
+					$newIds = explode(' ', $paddingQuery->id);
+					$newIds = array_merge($newIds, $productIds);
+				} elseif (in_array($paddingQuery->id, $productIds)) {
+					$newIds = false;
+				}
+				break;
+			case 'array':
+				if (strtolower($paddingQuery->id[0]) === 'not')
+					$newIds = array_merge($paddingQuery->id, $productIds);
+				else
+					$newIds = array_diff($paddingQuery->id, $productIds);
+				break;
+			case 'NULL':
+				$newIds = array_merge(['not'], $productIds);
+				break;
+		}
+
+		$paddingQuery->id($newIds);
+	}
 
 }
