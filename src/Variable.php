@@ -45,7 +45,7 @@ class Variable
 		$target,
 		$limit = 8,
 		ProductQuery $paddingQuery = null,
-        array $filters = []
+		array $filters = []
 	) {
 		$service = PurchasePatterns::getInstance()->getService();
 
