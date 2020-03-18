@@ -1,3 +1,10 @@
+## 1.1.4 - 2019-12-17
+### Added
+- Add ability to pre-filter purchase patterns (via [@jmauzyk](https://github.com/jmauzyk))
+
+### Fixed
+- Fix query issues (via [@jmauzyk](https://github.com/jmauzyk))
+
 ## 1.1.3 - 2019-12-04
 ### Fixed
 - Fix widget error when showing disabled products (Fixes #2)
