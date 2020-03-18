@@ -139,7 +139,8 @@ SQL;
 		{
 			$query = Product::find()
 				->id($productIds)
-				->limit($limit);
+				->limit($limit)
+        ->fixedOrder();
 
 			foreach ($filters as $prop => $val)
 				$query->$prop($val);
@@ -222,7 +223,8 @@ SQL;
 		{
 			$query = Product::find()
 				->id($productIds)
-				->limit($limit);
+				->limit($limit)
+        ->fixedOrder();
 
 			foreach ($filters as $prop => $val)
 				$query->$prop($val);
