@@ -1,3 +1,7 @@
+## 1.1.5 - 2020-03-18
+### Changed
+- Add support for Commerce 3
+
 ## 1.1.4 - 2019-12-17
 ### Added
 - Add ability to pre-filter purchase patterns (via [@jmauzyk](https://github.com/jmauzyk))
